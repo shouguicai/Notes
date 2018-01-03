@@ -52,7 +52,7 @@ public:
             limit_right = j-1;
             i+=2;j-=2;                                                  // 跳过i递增，j递减部分，在区间i+2~j-2中继续寻找最低买入时间和最高卖出时间，
         }                                                               // 并考虑i天卖出和j天买入时的利润
-        return profit;
+        return profit;                                                  // limit_right，limit_left用来限制i,j的搜索范围
     }
 };
 ```
