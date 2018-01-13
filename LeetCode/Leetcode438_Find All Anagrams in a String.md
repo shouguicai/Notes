@@ -94,7 +94,7 @@ public:
 *                if(map[s[begin++]]++ ?){ modify counter here}
 *            }  
 *
-*            update d here if finding maximum
+*            update d here if finding maximum  
 *        }
 *        return d;
 *  }
