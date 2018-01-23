@@ -117,3 +117,5 @@ int editDistDP(string str1, string str2, int m, int n)
 ```
 
 时间复杂度是O(mn)，额外需要的空间是O(mn)。
+
+同题见[LeetCode072](https://github.com/shouguicai/JOBS/blob/master/LeetCode/Leetcode072_Edit%20Distance.md)
