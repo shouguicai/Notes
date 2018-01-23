@@ -1,7 +1,7 @@
 ---
 title: 最长公共子序列问题
-date: 2018-01-22 13:13:00
-mathjax: true
+date: 2018-01-23
+mathjax: false
 tags: algorithm,geeksforgeeks
 ---
 
