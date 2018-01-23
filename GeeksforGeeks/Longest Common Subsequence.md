@@ -2,7 +2,7 @@
 title: 最长公共子序列问题
 date: 2018-01-23
 mathjax: false
-tags: algorithm,geeksforgeeks
+tags: 动态规划
 ---
 
 问题叙述：给定两个序列，找出两者中都存在的最长子序列的长度。子序列是以相同次序出现的序列，不要求连续。例如，“abc”, “abg”, “bdf”, “aeg”, ‘”acefg”等等都是序列 “abcdefg”的子序列。一个长度为n的序列总共有2^n个不同的子序列。
