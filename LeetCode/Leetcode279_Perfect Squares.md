@@ -45,12 +45,64 @@ public:
 };
 ```
 
-## Naive思路2 递归解
+## Naive思路2 递归解/DFS
 
 对n以内的平方数，遍历所有相加等于n的组合，返回其中数字个数最少的情况。问题转化为了[Leetcode039_Combination Sum](https://github.com/shouguicai/Notes/blob/master/LeetCode/Leetcode039_Combination%20Sum.md)问题。
 
 - step1: 求出n以内的所有平方数，放在数组squares[]中
 - step2: 递归求解squares[]中相加等于n的组合，同一个数可以多次使用。
+
+不同的是，这里不要求所有符合情况的组合，只需要知道最小的组合，
+所以递归可以提前停止，即
+```
+if(cur == -1 || target < 0 || numofSquares >= ans) return;
+```
+
+代码如下，
+
+```
+// 1041 ms
+class Solution {
+public:
+    int numSquares(int n) 
+    {
+        vector<int> squares;
+        for(int i = 1; i <= n/2; i++)
+            if( i*i <= n)
+                squares.push_back(i*i);
+        int numofSquares = 0;
+        ans = n;
+        combinationSum(squares,n,numofSquares,squares.size()-1);
+        return ans;
+    }
+private:
+    int ans;
+    void combinationSum(vector<int> candidates, int target, int& numofSquares, int cur)
+    {
+        if (target == 0)
+        {
+            ans = min(ans,numofSquares);
+            return;
+        }
+
+        if(cur == -1 || target < 0 || numofSquares >= ans)
+            return;
+
+        numofSquares ++;
+        // 因为允许多次使用同一个元素，cur没有+1
+        combinationSum(candidates, target - candidates[cur], numofSquares, cur);
+        numofSquares --;
+        combinationSum(candidates, target, numofSquares, cur - 1);
+    }
+};
+```
+
+时间复杂度为不详。
+
+## 动态规划 
+
+
+
 
 
 
