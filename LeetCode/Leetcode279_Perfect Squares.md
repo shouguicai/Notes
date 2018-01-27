@@ -97,11 +97,46 @@ private:
 };
 ```
 
-时间复杂度不详。
+最坏时间复杂度O(n^m)，其中，n为目标数字，m为n以内平方数的个数。
 
 ## 动态规划 
 
+动态规划问题的关键是找到最优子结构，
+用dp[i]表示相加等于i所需的最小平方数的个数，给在平方数数组squares[]下，最优子结构如下，
 
+```
+dp[i] = min(dp[i-squares[j]]) + 1 , for 所有 0< j < n-1的，并且i-squares[j] >= 0
+```
+
+Bottom up manner代码为，
+
+```
+// 112 ms
+class Solution {
+public:
+    int numSquares(int n) 
+    {
+        vector<int> squares;
+        for(int i = 1; i <= n/2 + 1; i++)
+            if( i*i <= n)
+                squares.push_back(i*i);
+        vector<int> dp(n+1);
+        int m = squares.size();
+        dp[0] = 0;
+        for(int i = 1; i <= n ; i++)
+        {
+            int numofSquares = i;
+            for(int j = 0 ; j < m; j++)
+                if(i - squares[j] >= 0)
+                    numofSquares = min(numofSquares,1 + dp[i - squares[j]]);
+            if(numofSquares <= i)
+                dp[i] = numofSquares;
+        }
+        return dp[n];
+    }
+};
+```
+算法时间复杂度O(n*m)，空间复杂度O(n)，其中，n为目标数字，m为n以内平方数的个数。
 
 
 

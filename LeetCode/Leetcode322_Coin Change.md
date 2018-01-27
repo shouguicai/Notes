@@ -51,12 +51,42 @@ private:
 };
 ```
 
-时间复杂度不详。
+最坏时间复杂度O(S^n)，其中，S为目标找零，n为硬币种类数。
 
 ## 动态规划
 
+动态规划问题的关键是找到最优子结构，
+用dp[i]表示找零i元所需的最小硬币数目，给在coins下，最优子结构如下，
 
+```
+dp[i] = min(dp[i-C[j]]) + 1 , for 所有 0< j < n-1的，并且i-C[j] >= 0
+```
 
+Bottom up manner代码为，
+
+```
+//  26 ms
+class Solution {
+public:
+    int coinChange(vector<int>& coins, int amount) 
+    {
+        vector<int> dp(amount + 1);
+        int n = coins.size();
+        dp[0] = 0;
+        for(int i = 1; i <= amount; i++)
+        {
+            int numofcoins = i + 1;
+            for(int j = 0; j < n; j++)
+                if(i - coins[j] >= 0 && dp[i - coins[j]] != -1)
+                    numofcoins = min(numofcoins,dp[i - coins[j]] + 1);
+            dp[i] = numofcoins == i + 1 ? -1 : numofcoins;
+        }
+        return dp[amount]; 
+    }
+};
+```
+
+算法时间复杂度O(S*n)，空间复杂度O(S)，其中，S为目标找零，n为硬币种类数。
 
 
 
