@@ -29,6 +29,18 @@ Given tree t:
  1   2
 Return false.
 
+树A（根为root）中包含树B的三种情况，
+
+1. 以root为根的一个子树和树B完全相同，
+2. root的左子树包含树B，
+3. 或者，root的右子树包含树B。
+
+两根树相同的判断
+
+1. 两棵树都是空树，
+2. 根节点值相同，并且左右子树对应为相同树，
+3. 否则，两棵树不同。
+
 ```
 /**
  * Definition for a binary tree node.
