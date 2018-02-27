@@ -3086,38 +3086,44 @@ private:
 
 [牛客网](https://www.nowcoder.com/practice/91b69814117f4e8097390d107d2efbe0?tpId=13&tqId=11212&rp=3&ru=%2Fta%2Fcoding-interviews&qru=%2Fta%2Fcoding-interviews%2Fquestion-ranking)
 
-栈，奇数行先左子树入栈，后右子树入栈，偶数行相反。
+双端队列，奇数行在队列头部push和top，右儿子先入,
+偶数行在队列尾部push和top，左儿子先入。
 
 ```
+/**
+* 运行时间：3ms
+* 占用内存：420k
+*/
 class Solution {
 public:
     vector<vector<int> > Print(TreeNode* pRoot) 
     {
         int row = 1;
         vector<vector<int> > ans;
-        stack<TreeNode*> mystack;
-        if(pRoot) mystack.push(pRoot);
-        while(!mystack.empty())
+        deque<TreeNode*> myqueue;
+        if(pRoot) myqueue.push_back(pRoot);
+        while(!myqueue.empty())
         {
           vector<int> v;
-          int cnt = mystack.size();
-          while(cnt > 0)
-          {
-            TreeNode* p = mystack.top();
-            mystack.pop();
-            --cnt;
-            v.push_back(p -> val);
-            if(row % 2 == 1)
-            {
-              if(p -> left) mystack.push(p -> left);
-              if(p -> right) mystack.push(p -> right);
-            }
-            else
-            {
-              if(p -> right) mystack.push(p -> right);
-              if(p -> left) mystack.push(p -> left);
-            }
-          }
+          int cnt = myqueue.size();
+          if(row % 2 == 1)
+              while(cnt-- > 0)
+              {
+                  TreeNode* p = myqueue.front();
+                  myqueue.pop_front();
+                  v.push_back(p -> val);
+                  if(p -> left) myqueue.push_back(p -> left);
+                  if(p -> right) myqueue.push_back(p -> right);
+              }
+          else
+            while(cnt-- > 0)
+              {
+                  TreeNode* p = myqueue.back();
+                  myqueue.pop_back();
+                  v.push_back(p -> val);
+                  if(p -> right) myqueue.push_front(p -> right);
+                  if(p -> left) myqueue.push_front(p -> left);
+              }
           ans.push_back(v);
           ++row;
         }
@@ -3277,18 +3283,200 @@ private:
 
 [牛客网](https://www.nowcoder.com/practice/9be0172896bd43948f8a32fb954e1be1?tpId=13&tqId=11216&rp=3&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
 
+维持两个平衡的最大堆和最小堆，最大堆存前1/2元素，最小堆存后1/2元素。
+中位数可由堆顶元素得到。
+
 ```
+/**
+* 运行时间：3ms
+* 占用内存：512k
+*/
 class Solution {
 public:
     void Insert(int num)
     {
-        
+        if(++cnt % 2 == 0)
+        {
+          maxHeap.push(num);
+          minHeap.push(maxHeap.top());
+          maxHeap.pop();
+        }
+        else
+        {
+          minHeap.push(num);
+          maxHeap.push(minHeap.top());
+          minHeap.pop();
+        }
     }
 
     double GetMedian()
     { 
-    
+        if(cnt % 2 == 0)
+          return (minHeap.top() + maxHeap.top()) / 2.0;
+        else
+          return double(maxHeap.top());
     }
+private:
+  priority_queue<int, vector<int>, less<int> > maxHeap;
+  priority_queue<int, vector<int>, greater<int> > minHeap;  
+  int cnt = 0;
+};
+```
 
+##  滑动窗口的最大值
+
+题目描述
+给定一个数组和滑动窗口的大小，找出所有滑动窗口里数值的最大值。
+例如，如果输入数组{2,3,4,2,6,2,5,1}及滑动窗口的大小3，
+那么一共存在6个滑动窗口，他们的最大值分别为{4,4,6,6,6,5}； 
+针对数组{2,3,4,2,6,2,5,1}的滑动窗口有以下6个： 
+{[2,3,4],2,6,2,5,1}， {2,[3,4,2],6,2,5,1}， 
+{2,3,[4,2,6],2,5,1}， {2,3,4,[2,6,2],5,1}， 
+{2,3,4,2,[6,2,5],1}， {2,3,4,2,6,[2,5,1]}。
+
+考点：栈和队列
+
+[牛客网](https://www.nowcoder.com/practice/1624bc35a45c42c0bc17d17fa0cba788?tpId=13&tqId=11217&rp=3&ru=%2Fta%2Fcoding-interviews&qru=%2Fta%2Fcoding-interviews%2Fquestion-ranking)
+
+### 最大堆
+
+维持一个按值大小存储的最大堆，不断插入新进入的元素，
+并且检查堆顶元素是否过期。
+
+```
+/**
+* 运行时间：3ms
+* 占用内存：512k
+*/
+struct Node{ 
+    int idx,val;
+    Node(int _idx,int _val):idx(_idx),val(_val){}
+    bool operator< (const Node& n)const
+    { 
+        return this -> val < n.val; 
+    } 
+}; 
+class Solution {
+public:
+    vector<int> maxInWindows(const vector<int>& num, unsigned int size)
+    {
+        if(size <= 0 || size > num.size()) return vector<int>();
+        vector<int> ans;
+        priority_queue<Node> maxHeap;
+        for(int i = 0;i < size;++i)
+            maxHeap.push(Node(i,num[i]));
+        if(!maxHeap.empty())
+            ans.push_back(maxHeap.top().val);
+        for(int i = size;i < num.size();++i)
+        {
+            maxHeap.push(Node(i,num[i]));
+            if(i - maxHeap.top().idx + 1 > size)
+                maxHeap.pop();
+            ans.push_back(maxHeap.top().val);
+        }
+        return ans;
+    }
+};
+```
+
+## 矩阵中的路径
+
+题目描述:
+请设计一个函数，用来判断在一个矩阵中是否存在一条包含某字符串所有字符的路径。
+路径可以从矩阵中的任意一个格子开始，每一步可以在矩阵中向左，向右，向上，
+向下移动一个格子。如果一条路径经过了矩阵中的某一个格子，
+则该路径不能再进入该格子。 
+例如 a b c e s f c s a d e e 矩阵中包含一条字符串"bcced"的路径，
+但是矩阵中不包含"abcb"路径，
+因为字符串的第一个字符b占据了矩阵中的第一行第二个格子之后，
+路径不能再次进入该格子。
+
+考点：回溯法
+
+[牛客网](https://www.nowcoder.com/practice/c61c6999eecb4b8f88a98f66b273a3cc?tpId=13&tqId=11218&rp=3&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
+
+参考[lizo](https://www.nowcoder.com/profile/248554)的答案
+
+用一个状态数组标记访问过的字符，然后再分别按上下左右方向递归。
+```
+/**
+* 运行时间：4ms
+* 占用内存：512k
+*/
+class Solution {
+public:
+    bool hasPath(char* matrix, int rows, int cols, char* str)
+    {
+        vector<bool> flag(rows*cols,false);
+        string strs = string(str);
+        for(int i = 0;i < rows;++i)
+          for(int j = 0;j < cols;++j)
+            if(helper(matrix,rows,cols,strs,flag,i,j,0))
+              return true;
+      return false;
+    } 
+private:
+    bool helper(char* matrix,int rows, int cols,string& str,vector<bool>&flag,int i,int j,int k)
+    {
+        int idx = i*cols + j;
+        if(i < 0 || i >= rows || j < 0 || j >= cols || matrix[idx] != str[k] || flag[idx]) return false;
+        if(k == (int)str.size() - 1) return true;
+        flag[idx] = true;
+        if(helper(matrix,rows,cols,str,flag,i-1,j,k+1)
+           || helper(matrix,rows,cols,str,flag,i+1,j,k+1)
+           || helper(matrix,rows,cols,str,flag,i,j-1,k+1)
+           || helper(matrix,rows,cols,str,flag,i,j+1,k+1))
+           return true;
+        flag[idx] = false;
+        return false;
+    }
+};
+
+## 机器人的运动范围
+
+题目描述
+地上有一个m行和n列的方格。一个机器人从坐标0,0的格子开始移动，
+每一次只能向左，右，上，下四个方向移动一格，
+但是不能进入行坐标和列坐标的数位之和大于k的格子。 
+例如，当k为18时，机器人能够进入方格（35,37），
+因为3+5+3+7 = 18。但是，它不能进入方格（35,38），
+因为3+5+3+8 = 19。请问该机器人能够达到多少个格子？
+
+考点：回溯法
+
+[牛客网](https://www.nowcoder.com/practice/6e5207314b5241fb83f2329e89fdecc8?tpId=13&tqId=11219&rp=3&ru=/ta/coding-interviews&qru=/ta/coding-interviews/question-ranking)
+
+```
+/**
+* 运行时间：3ms
+* 占用内存：540k
+*/
+class Solution {
+public:
+    int movingCount(int threshold, int rows, int cols)
+    {
+        int cnt = 0;
+        vector<vector<bool> > flag(rows,vector<bool>(cols,0));
+        helper(threshold,rows,cols,flag,cnt,0,0);
+        return cnt;
+    }
+private:
+    void helper(int threshold, int rows, int cols, vector<vector<bool> >& flag, int& cnt, int i, int j)
+    {
+        if(i < 0 || i >= rows || j < 0 || j >= cols || sumDigits(i,j) > threshold || flag[i][j]) return;
+        flag[i][j] = true;
+        ++cnt;
+        helper(threshold,rows,cols,flag,cnt,i-1,j);
+        helper(threshold,rows,cols,flag,cnt,i+1,j);
+        helper(threshold,rows,cols,flag,cnt,i,j-1);
+        helper(threshold,rows,cols,flag,cnt,i,j+1);
+    }
+    int sumDigits(int i, int j)
+    {
+        int sum = 0;
+        for(;i;i/=10) sum += i%10;
+        for(;j;j/=10) sum += j%10;
+        return sum;
+    }
 };
 ```
