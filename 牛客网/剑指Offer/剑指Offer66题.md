@@ -3188,49 +3188,48 @@ public:
 空节点用'#'表示，节点间用','分隔。
 
 ```
-// 内存超限:您的程序使用了超过限制的内存
+/**
+* 运行时间：4ms
+* 占用内存：512k
+*/
 class Solution {
 public:
     char* Serialize(TreeNode *root) 
     {    
-        string str = SerializeHelper(root);
-        // string 转 char[]
-        int n = str.length();
-        char * cstr = new char[n+1];
-        str.copy(cstr,n,0);
-        cstr[n] = '\0';
-        return cstr;
-
+        buf.clear();
+        SerializeHelper(root);
+        int * cstr = new int[buf.size()];
+        for(int i = 0;i < buf.size();++i) cstr[i] = buf[i];
+        return (char*)cstr;
     }
     TreeNode* Deserialize(char *str) 
     {
-      // char[] 转 string
-      string Str = "";
-      Str += str;
-      int start_pos = 0;
-      return DeserializeHelper(Str,start_pos);
+      int *p = (int*) str;
+      return DeserializeHelper(p);
     }
 private:
-  string SerializeHelper(TreeNode *root)
+  vector<int> buf;
+  void SerializeHelper(TreeNode *root)
   {
-    if(!root) return "#";
-    return to_string(root -> val) + "," 
-          + SerializeHelper(root -> left) 
-          + SerializeHelper(root -> right);
-  }
-  TreeNode* DeserializeHelper(string str,int& pos) 
+    if(!root) buf.push_back(INT_MAX);
+    else
     {
-      if(str.size() == pos) return NULL;
-      int index = str.find(",",pos);
-      if(pos == -1) return NULL;
-      int length = index - pos + 1;
-      pos = index + 1;
-      string sub = str.substr(pos,length);
-      if(sub == "#") return NULL;
-      int val = atoi(sub.c_str());
-      TreeNode* t = new TreeNode(val);
-      t -> left = DeserializeHelper(str,pos);
-      t -> right = DeserializeHelper(str,pos);
+        buf.push_back(root -> val);
+        SerializeHelper(root -> left);
+        SerializeHelper(root -> right);
+    }
+  }
+  TreeNode* DeserializeHelper(int* &p) 
+    {
+      if(*p == INT_MAX)
+      {
+          p++;
+          return NULL;
+      }
+      TreeNode* t = new TreeNode(*p);
+      p++;
+      t -> left = DeserializeHelper(p);
+      t -> right = DeserializeHelper(p);
       return t; 
     }
 };
